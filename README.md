@@ -65,3 +65,5 @@ Hỗ trợ mọi loại file (ảnh, tài liệu, v.v), giao diện hiện đạ
 
 Tác giả: **[Dương Huy Hoàng]**  
 Dự án phục vụ mục đích học tập và tham khảo.
+![image](https://github.com/user-attachments/assets/23a60533-d2b5-4f1c-ad98-f4b167c3b41e)
+

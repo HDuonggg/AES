@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mã hóa/Giải mã AES</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f4f8fb 0%, #e0e7ef 100%);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .bg-blobs {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.38;
+            mix-blend-mode: lighten;
+            animation: blobMove 18s infinite alternate;
+        }
+        .blob1 {
+            width: 520px; height: 520px;
+            background: linear-gradient(120deg, #23a6d5 60%, #a1ffce 100%);
+            top: -140px; left: -140px;
+            animation-delay: 0s;
+        }
+        .blob2 {
+            width: 400px; height: 400px;
+            background: linear-gradient(120deg, #e73c7e 60%, #fdc8ff 100%);
+            bottom: -120px; right: -100px;
+            animation-delay: 4s;
+        }
+        .blob3 {
+            width: 300px; height: 300px;
+            background: linear-gradient(120deg, #23d5ab 60%, #f9ffb5 100%);
+            top: 60%; left: 60%;
+            animation-delay: 8s;
+        }
+        @keyframes blobMove {
+            0% { transform: translate(0, 0) scale(1);}
+            100% { transform: translate(40px, -40px) scale(1.18);}
+        }
+        .container {
+            max-width: 700px;
+            width: 100%;
+            margin: 40px auto;
+            position: relative;
+            z-index: 1;
+        }
+        .card {
+            background: rgba(255,255,255,0.98);
+            border-radius: 32px;
+            box-shadow: 0 12px 48px 0 rgba(31,38,135,0.18), 0 1.5px 8px 0 rgba(35,166,213,0.10);
+            padding: 2.8rem 3.2rem 2.2rem 3.2rem;
+            border: 2.5px solid #23a6d5; /* Thêm border nổi bật */
+            transition: box-shadow 0.3s, transform 0.2s, border-color 0.3s;
+        }
+        .card:hover {
+            box-shadow: 0 24px 64px 0 rgba(31,38,135,0.28), 0 4px 24px 0 rgba(35,166,213,0.18);
+            transform: translateY(-4px) scale(1.01);
+            border-color: #e73c7e; /* Border đổi màu khi hover */
+        }
+        .encryption-icon {
+            text-align: center;
+            margin-bottom: 1.7rem;
+            font-size: 4.8rem;
+            color: #23a6d5;
+            text-shadow: 0 0 24px rgba(35,166,213,0.18);
+            animation: bounceIn 1.2s;
+        }
+        @keyframes bounceIn {
+            0% { transform: scale(0.7);}
+            60% { transform: scale(1.15);}
+            100% { transform: scale(1);}
+        }
+        .title {
+            color: #23a6d5;
+            text-shadow: 2px 2px 12px rgba(35,166,213,0.10);
+            font-weight: 700;
+            margin-bottom: 2.5rem;
+            text-align: center;
+            font-size: 2.8rem;
+            letter-spacing: 1.5px;
+            background: linear-gradient(90deg, #23a6d5 30%, #e73c7e 70%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .form-label {
+            color: #1f95c0;
+            font-weight: 500;
+            font-size: 1.08rem;
+            margin-bottom: 0.7rem;
+        }
+        .form-control {
+            border-radius: 16px;
+            padding: 1rem 1.1rem;
+            border: 2px solid #23a6d5; /* Border xanh nổi bật */
+            background: rgba(255,255,255,0.97);
+            font-size: 1.05rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .form-control:focus {
+            border-color: #e73c7e; /* Border hồng khi focus */
+            box-shadow: 0 0 12px rgba(231,60,126,0.18);
+        }
+        .form-text {
+            font-size: 0.97rem;
+            color: #888;
+        }
+        .operation-container {
+            background: rgba(35, 166, 213, 0.09);
+            border-radius: 16px;
+            padding: 1.1rem 1rem 0.7rem 1rem;
+            margin-bottom: 1.3rem;
+            transition: background 0.3s;
+        }
+        .operation-container:hover {
+            background: rgba(35, 166, 213, 0.16);
+        }
+        .form-check-input {
+            width: 1.2em;
+            height: 1.2em;
+            margin-top: 0.25em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .form-check-input:checked {
+            background-color: #23a6d5;
+            border-color: #23a6d5;
+        }
+        .form-check-label {
+            cursor: pointer;
+            font-weight: 500;
+            padding-left: 0.5rem;
+            color: #1f95c0;
+            transition: color 0.2s;
+        }
+        .form-check-input:checked + .form-check-label {
+            color: #e73c7e;
+        }
+        .btn-primary {
+            border-radius: 16px;
+            padding: 1.1rem;
+            width: 100%;
+            background: linear-gradient(90deg, #23a6d5 0%, #23d5ab 100%);
+            border: 2px solid #23a6d5; /* Border cho nút */
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            font-size: 1.15rem;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(35,166,213,0.10);
+        }
+        .btn-primary:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: all 0.6s;
+        }
+        .btn-primary:hover:before {
+            left: 100%;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 8px 32px rgba(35,166,213,0.18);
+            background: linear-gradient(90deg, #1f95c0 0%, #1fb993 100%);
+            border-color: #e73c7e; /* Border đổi màu khi hover */
+        }
+        .alert {
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.5s ease;
+            font-size: 1rem;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        #preview img {
+            max-width: 240px;
+            max-height: 240px;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px #23a6d544, 0 1.5px 8px #e73c7e33;
+            margin-bottom: 0.7rem;
+            border: 3.5px solid #23a6d5; /* Border xanh nổi bật cho ảnh */
+            background: #f4f8fb;
+            transition: box-shadow 0.3s, transform 0.2s, border-color 0.3s;
+        }
+        #preview img:hover {
+            box-shadow: 0 8px 40px #23a6d577, 0 4px 24px #e73c7e44;
+            transform: scale(1.04) rotate(-2deg);
+            border-color: #e73c7e; /* Border đổi màu khi hover */
+        }
+        /* Responsive */
+        @media (max-width: 600px) {
+            .container { max-width: 98vw; padding: 0.5rem;}
+            .card { padding: 1.2rem 0.5rem;}
+            .title { font-size: 2rem;}
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-blobs">
+        <div class="blob blob1"></div>
+        <div class="blob blob2"></div>
+        <div class="blob blob3"></div>
+    </div>
+    <div class="container">
+        <h1 class="title animate__animated animate__fadeInDown">🔐 AES File Encryptor</h1>
+        <div class="card animate__animated animate__fadeInUp">
+            <div class="encryption-icon">🖼️</div>
+            <form id="aesForm" method="post" enctype="multipart/form-data" action="/process">
+                <div class="mb-3">
+                    <label for="file" class="form-label">Chọn file (ảnh hoặc bất kỳ)</label>
+                    <input class="form-control" type="file" id="file" name="file" accept="image/*,.jpg,.jpeg,.png,.gif,.bmp,.webp,.tiff,.svg,.ico,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip,.rar,.7z,.mp3,.mp4,.avi,.mkv,*/*" required>
+                </div>
+                <div id="preview" style="text-align:center;margin-bottom:1rem;"></div>
+                <div class="mb-3">
+                    <label for="key" class="form-label">Nhập khóa (độ dài bất kỳ)</label>
+                    <input type="password" class="form-control" id="key" name="key" placeholder="Nhập khóa bí mật..." required>
+                    <div class="form-text">Khóa càng dài và phức tạp thì càng an toàn.</div>
+                </div>
+                <div class="mb-3 operation-container">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="operation" id="encrypt" value="encrypt" checked>
+                        <label class="form-check-label" for="encrypt">Mã hóa</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="operation" id="decrypt" value="decrypt">
+                        <label class="form-check-label" for="decrypt">Giải mã</label>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Thực hiện</button>
+            </form>
+            <div id="alertBox" style="margin-top:1.2rem;"></div>
+        </div>
+        <div class="mt-4 text-center text-muted" style="font-size:0.97rem;">
+            Ứng dụng mã hóa/giải mã file (hỗ trợ ảnh, tài liệu, v.v) bằng thuật toán AES.<br>
+            Mọi thao tác đều thực hiện trên máy chủ, dữ liệu của bạn được bảo mật.
+        </div>
+        <script>
+            // Xem trước ảnh nếu là file ảnh
+            document.getElementById('file').addEventListener('change', function(e) {
+                const preview = document.getElementById('preview');
+                preview.innerHTML = '';
+                const file = e.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        preview.innerHTML = '<img src="' + evt.target.result + '" alt="preview">';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        </script>
+    </div>
+</body>
+</html>
